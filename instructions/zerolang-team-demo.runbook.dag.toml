@@ -1,0 +1,204 @@
+# Give this DAG-TOML file to an LLM as the demo runbook.
+# The LLM should read this repo, execute units D01-D08 in layer order, and
+# create/update a completed DAG when the deterministic validation passes.
+closure_root = "sha256:598b116bf106fcda921befd1b4ddfbfa816e1c4bf19f0299e00def28a1eae281"
+
+[meta]
+schema_version   = "0.1.0"
+template_kind    = "implementation-dag"
+docs             = "https://agent-assurance.dev/spec/"
+confidentiality  = "public"
+license          = "Apache-2.0"
+ontology_version = 1
+title            = "LLM runbook: Zerolang agent-assurance demo"
+spec             = "fixtures/hello.graph"
+decomposition    = "read repo, run demo, validate completion, update DAG"
+created          = "2026-06-09"
+total_units      = 8
+tier1_units      = ["D01", "D02", "D03", "D04", "D05", "D06", "D07", "D08"]
+tier2_units      = []
+tier3_units      = []
+
+[provenance]
+source_path        = "fixtures/hello.graph"
+source_sha256      = "sha256:5a8f3689bd05921106a8668c76c44dc8dfb628ddc652c45a6016de9e8946e331"
+source_bytes       = 4602
+source_description = "Bundled Zerolang graph fixture used as the demo evidence artifact."
+extraction_method  = "sha256 over fixtures/hello.graph"
+
+[llm_instruction]
+audience = "LLM facilitator presenting the demo to the Zerolang team"
+goal     = "Walk through how DAG-TOML composes with Zero graph evidence as a governance sidecar."
+rule     = "Do not claim completion from intent. Completion requires the deterministic validation command to pass."
+start    = "Read README.md, verification.md, this DAG, scripts/*.mts, fixtures/hello.graph, profile-packs/CIS_SOFTWARE_SERVICES.toml, and artifacts/reference/share/validation.txt."
+finish   = "When validation passes, update a completed DAG with every unit status set to done and record the validation output."
+
+[deterministic_validation]
+command = "pnpm run demo:validate-completion"
+alternate_after_live_run = "pnpm run demo:validate-completion -- --bundle artifacts/demo-run/share --dag instructions/zerolang-team-demo.completed.dag.toml"
+expected_stdout = "DEMO COMPLETION VALIDATION PASSED"
+expected_closure_root = "sha256:598b116bf106fcda921befd1b4ddfbfa816e1c4bf19f0299e00def28a1eae281"
+expected_zero_graph_sha256 = "sha256:5a8f3689bd05921106a8668c76c44dc8dfb628ddc652c45a6016de9e8946e331"
+expected_profile_sha256 = "sha256:161b4eaa448234ac0125c8d2cf8e35c090fd508408df51b329f256a35cdf5136"
+expected_profile_contract_count = 16
+
+[units.D01]
+name          = "read-repository-context"
+summary       = "Read the repo README, verification note, scripts, profile pack, and reference artifacts before presenting."
+layer         = 0
+tier          = 1
+status        = "pending"
+depends_on    = []
+blocks        = ["D02"]
+estimated_loc = 0
+files_modify  = ["README.md", "verification.md", "scripts/zero-dagtoml-demo.mts", "scripts/share-dagtoml-demo.mts"]
+produces      = ["ART:repo-orientation"]
+consumes      = []
+
+[units.D02]
+name          = "explain-zero-artifact-proof"
+summary       = "Show that Zero proves the graph artifact through check, inspect, graph hash, readiness, and safety facts."
+layer         = 1
+tier          = 1
+status        = "pending"
+depends_on    = ["D01"]
+blocks        = ["D03"]
+estimated_loc = 0
+files_modify  = ["fixtures/hello.graph", "artifacts/reference/share/zero-check.json", "artifacts/reference/share/zero-inspect.json"]
+produces      = ["ART:zero-artifact-proof"]
+consumes      = ["ART:repo-orientation"]
+
+[units.D03]
+name          = "emit-base-dag-toml-sidecar"
+summary       = "Run or show the base sidecar emitter that converts Zero evidence into an implementation-dag TOML sidecar."
+layer         = 2
+tier          = 1
+status        = "pending"
+depends_on    = ["D02"]
+blocks        = ["D04"]
+estimated_loc = 0
+files_modify  = ["artifacts/reference/hello.dag.toml", "scripts/zero-dagtoml-demo.mts"]
+produces      = ["ART:base-sidecar"]
+consumes      = ["ART:zero-artifact-proof"]
+
+[units.D04]
+name          = "create-share-bundle"
+summary       = "Run or show the share script that captures Zero check/inspect evidence, emits the sidecar, copies profile packs, and writes validation output."
+layer         = 3
+tier          = 1
+status        = "pending"
+depends_on    = ["D03"]
+blocks        = ["D05"]
+estimated_loc = 0
+files_modify  = ["artifacts/reference/share/README.md", "artifacts/reference/share/fixtures-hello.dag.toml"]
+produces      = ["ART:share-bundle"]
+consumes      = ["ART:base-sidecar"]
+
+[units.D05]
+name          = "show-cis-profile-extension"
+summary       = "Show the CIS profile pack TOML, companion docs, hash, contract count, and profile_packs evidence extension in the sidecar."
+layer         = 4
+tier          = 1
+status        = "pending"
+depends_on    = ["D04"]
+blocks        = ["D06"]
+estimated_loc = 0
+files_modify  = ["profile-packs/CIS_SOFTWARE_SERVICES.toml", "artifacts/reference/share/profile-packs/CIS_SOFTWARE_SERVICES.toml"]
+produces      = ["ART:cis-profile-evidence"]
+consumes      = ["ART:share-bundle"]
+
+[units.D06]
+name          = "verify-agent-assurance-validators"
+summary       = "Show closure-root, provenance, and implementation-dag validators all exit 0 in validation.txt."
+layer         = 5
+tier          = 1
+status        = "pending"
+depends_on    = ["D05"]
+blocks        = ["D07"]
+estimated_loc = 0
+files_modify  = ["artifacts/reference/share/validation.txt"]
+produces      = ["ART:validator-transcript"]
+consumes      = ["ART:cis-profile-evidence"]
+
+[units.D07]
+name          = "run-deterministic-completion-validation"
+summary       = "Run pnpm run demo:validate-completion and require deterministic expected hashes, files, validator transcript markers, and completed DAG statuses."
+layer         = 6
+tier          = 1
+status        = "pending"
+depends_on    = ["D06"]
+blocks        = ["D08"]
+estimated_loc = 0
+files_modify  = ["scripts/validate-demo-completion.mts", "instructions/zerolang-team-demo.completed.dag.toml"]
+produces      = ["ART:completion-validation"]
+consumes      = ["ART:validator-transcript"]
+
+[units.D08]
+name          = "update-dag-to-complete"
+summary       = "After deterministic validation passes, update the completed DAG so every unit is status done and completion.deterministic_result is passed."
+layer         = 7
+tier          = 1
+status        = "pending"
+depends_on    = ["D07"]
+blocks        = []
+estimated_loc = 0
+files_modify  = ["instructions/zerolang-team-demo.completed.dag.toml"]
+produces      = ["OUT:completed-demo-dag"]
+consumes      = ["ART:completion-validation"]
+
+[computed]
+entry_points      = ["D01"]
+leaf_nodes        = ["D08"]
+critical_path     = ["D01", "D02", "D03", "D04", "D05", "D06", "D07", "D08"]
+critical_path_loc = 0
+loc_totals        = { tier1 = 0 }
+
+[computed.max_parallel]
+layer0 = 1
+layer1 = 1
+layer2 = 1
+layer3 = 1
+layer4 = 1
+layer5 = 1
+layer6 = 1
+layer7 = 1
+
+[[demo_steps]]
+unit = "D01"
+say  = "This repo is a standalone sidecar demo. Start by reading README.md and the checked reference bundle."
+run  = "sed -n '1,180p' README.md && sed -n '1,140p' verification.md"
+
+[[demo_steps]]
+unit = "D02"
+say  = "Zero proves the artifact. The graph hash and readiness data come from zero check and zero inspect."
+run  = "$ZERO_BIN check --json fixtures/hello.graph && $ZERO_BIN inspect --json fixtures/hello.graph"
+
+[[demo_steps]]
+unit = "D03"
+say  = "The base emitter turns Zero evidence into a DAG-TOML implementation-dag sidecar."
+run  = "ZERO_BIN=${ZERO_BIN:-zero} pnpm run dagtoml:demo -- fixtures/hello.graph --out artifacts/demo-run/hello.dag.toml"
+
+[[demo_steps]]
+unit = "D04"
+say  = "The share script creates a complete evidence bundle and validator transcript."
+run  = "ZERO_BIN=${ZERO_BIN:-zero} pnpm run dagtoml:share -- fixtures/hello.graph --out-dir artifacts/demo-run/share"
+
+[[demo_steps]]
+unit = "D05"
+say  = "The CIS profile pack is a governance extension carried beside the Zero proof, not a runtime permission system."
+run  = "rg -n \"profile_packs|CIS|sample_contracts|source_sha256|contract_count\" artifacts/demo-run/share/fixtures-hello.dag.toml"
+
+[[demo_steps]]
+unit = "D06"
+say  = "The agent-assurance validators check closure-root, provenance, and implementation-DAG structure."
+run  = "cat artifacts/demo-run/share/validation.txt"
+
+[[demo_steps]]
+unit = "D07"
+say  = "Completion is deterministic: files, hashes, validator markers, and completed DAG statuses are checked."
+run  = "pnpm run demo:validate-completion -- --bundle artifacts/demo-run/share --dag instructions/zerolang-team-demo.completed.dag.toml"
+
+[[demo_steps]]
+unit = "D08"
+say  = "Only after validation passes should the completed DAG record all units as done."
+run  = "rg -n 'status|deterministic_result|completed = true' instructions/zerolang-team-demo.completed.dag.toml"

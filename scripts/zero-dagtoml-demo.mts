@@ -1,0 +1,270 @@
+#!/usr/bin/env -S node --experimental-strip-types --disable-warning=ExperimentalWarning
+import { execFileSync } from "node:child_process";
+import { createHash } from "node:crypto";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { basename, dirname, relative, resolve } from "node:path";
+
+type JsonObject = Record<string, any>;
+
+const EMPTY_CLOSURE_ROOT =
+  "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855";
+
+const root = resolve(import.meta.dirname, "..");
+
+function usage() {
+  console.log(`Emit a DAG-TOML governance sidecar from Zero graph evidence.
+
+Usage:
+  pnpm run dagtoml:demo -- [zero-input] [--out <file>] [--target <target>] [--zero <path>]
+
+Examples:
+  ZERO_BIN=zero pnpm run dagtoml:demo -- fixtures/hello.graph --out artifacts/hello.dag.toml
+  pnpm run dagtoml:demo -- fixtures/hello.graph --zero zero
+
+Environment:
+  ZERO_BIN overrides the Zero compiler path when --zero is omitted.
+`);
+}
+
+function argValue(args: string[], name: string) {
+  const index = args.indexOf(name);
+  return index === -1 ? undefined : args[index + 1];
+}
+
+function hasArg(args: string[], name: string) {
+  return args.includes(name);
+}
+
+function runJson(command: string, args: string[]): JsonObject {
+  const stdout = execFileSync(command, args, {
+    cwd: root,
+    encoding: "utf8",
+    stdio: ["ignore", "pipe", "pipe"],
+  });
+  return JSON.parse(stdout) as JsonObject;
+}
+
+function sha256Bytes(bytes: Buffer) {
+  return createHash("sha256").update(bytes).digest("hex");
+}
+
+function closureRootForSourceHash(sourceSha256: string) {
+  const record = `provenance.source_sha256 sha256:${sourceSha256}\n`;
+  return `sha256:${createHash("sha256").update(record).digest("hex")}`;
+}
+
+function tomlString(value: unknown) {
+  return JSON.stringify(String(value ?? ""));
+}
+
+function tomlArray(values: unknown[]) {
+  return `[${values.map(tomlString).join(", ")}]`;
+}
+
+function numberOrZero(value: unknown) {
+  return Number.isFinite(value) ? Number(value) : 0;
+}
+
+function relPath(path: string) {
+  return relative(root, resolve(root, path)).replaceAll("\\", "/");
+}
+
+function displayCommand(command: string) {
+  if (resolve(command) === command) return basename(command);
+  return command;
+}
+
+function todayUtc() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+const rawArgs = process.argv.slice(2);
+if (hasArg(rawArgs, "--help") || hasArg(rawArgs, "-h")) {
+  usage();
+  process.exit(0);
+}
+
+const input = rawArgs.find((arg, index) => {
+  if (arg.startsWith("--")) return false;
+  const previous = rawArgs[index - 1];
+  return previous !== "--out" && previous !== "--target" && previous !== "--zero" && previous !== "--title";
+}) ?? "fixtures/hello.graph";
+
+const zero = argValue(rawArgs, "--zero") ?? process.env.ZERO_BIN ?? "zero";
+const target = argValue(rawArgs, "--target");
+const outPath = argValue(rawArgs, "--out") ?? `.zero/dag/${input.replace(/[^A-Za-z0-9_.-]+/g, "-")}.dag.toml`;
+
+const commonTargetArgs = target ? ["--target", target] : [];
+const check = runJson(zero, ["check", "--json", ...commonTargetArgs, input]);
+if (!check.ok) {
+  throw new Error(`zero check failed for ${input}; refusing to emit ready governance sidecar`);
+}
+const inspect = runJson(zero, ["inspect", "--json", ...commonTargetArgs, input]);
+
+const graph = (inspect.graph ?? check) as JsonObject;
+const artifact = String(graph.artifact ?? check.artifact ?? input);
+const artifactRel = relPath(artifact);
+const artifactBytes = readFileSync(resolve(root, artifactRel));
+const artifactSha256 = sha256Bytes(artifactBytes);
+const closureRoot = closureRootForSourceHash(artifactSha256);
+const targetReadiness = (inspect.targetReadiness ?? check.targetReadiness ?? {}) as JsonObject;
+const packageInfo = (inspect.package ?? {}) as JsonObject;
+const packageCache = (inspect.packageCache?.cacheKeyInputs ?? {}) as JsonObject;
+const targetSupport = (inspect.targetSupport ?? {}) as JsonObject;
+const safetyFacts = (inspect.safetyFacts ?? {}) as JsonObject;
+const requiredCapabilities = Array.isArray(inspect.requiresCapabilities) ? inspect.requiresCapabilities : [];
+const hostCapabilities = Array.isArray(targetSupport.capabilities) ? targetSupport.capabilities : [];
+const moduleIdentity = String(graph.moduleIdentity ?? check.moduleIdentity ?? "");
+const title = argValue(rawArgs, "--title") ?? `Zero governance sidecar for ${moduleIdentity || artifactRel}`;
+const status = targetReadiness.ok === false || targetReadiness.buildable === false ? "blocked" : "done";
+const readinessStage = String(targetReadiness.stage ?? "unknown");
+const compilerVersion = String(packageCache.compilerVersion ?? "");
+const graphHash = String(graph.graphHash ?? check.graphHash ?? "");
+const diagnostics = Array.isArray(targetReadiness.diagnostics) ? targetReadiness.diagnostics : [];
+const firstDiagnostic = diagnostics[0] ?? null;
+
+const toml = `# Generated by scripts/zero-dagtoml-demo.mts.
+# This is a governance sidecar over Zero evidence, not a runtime or permission system.
+closure_root = ${tomlString(closureRoot)}
+
+[meta]
+schema_version   = "0.1.0"
+template_kind    = "implementation-dag"
+docs             = "https://agent-assurance.dev/spec/"
+confidentiality  = "public"
+license          = "Apache-2.0"
+ontology_version = 1
+title            = ${tomlString(title)}
+spec             = ${tomlString(artifactRel)}
+decomposition    = "zero check --json + zero inspect --json"
+created          = ${tomlString(todayUtc())}
+total_units      = 3
+tier1_units      = ["Z01", "Z02", "Z03"]
+tier2_units      = []
+tier3_units      = []
+
+[provenance]
+source_path        = ${tomlString(artifactRel)}
+source_sha256      = ${tomlString(`sha256:${artifactSha256}`)}
+source_bytes       = ${artifactBytes.length}
+source_description = "Zero graph artifact used as the closure root for this governance sidecar."
+extraction_method  = "zero check --json and zero inspect --json"
+
+[units.Z01]
+name          = "anchor-zero-graph-closure-root"
+summary       = "Compute the SHA-256 closure root over the checked Zero graph artifact."
+layer         = 0
+tier          = 1
+status        = "done"
+depends_on    = []
+blocks        = ["Z02"]
+estimated_loc = 0
+files_modify  = [${tomlString(artifactRel)}]
+produces      = ["ART:zero-graph-closure-root"]
+consumes      = []
+
+[units.Z02]
+name          = "prove-zero-typecheck-and-target-readiness"
+summary       = "Use Zero's checked graph, graph hash, type facts, safety facts, and target readiness as evidence."
+layer         = 1
+tier          = 1
+status        = ${tomlString(status)}
+depends_on    = ["Z01"]
+blocks        = ["Z03"]
+estimated_loc = 0
+files_modify  = []
+produces      = ["ART:zero-check-report", "ART:zero-inspect-report"]
+consumes      = ["ART:zero-graph-closure-root"]
+
+[units.Z03]
+name          = "gate-human-review-with-dag-toml-sidecar"
+summary       = "Bind the Zero patch evidence to review, traceability, cost, and provenance gates outside the runtime."
+layer         = 2
+tier          = 1
+status        = ${tomlString(status)}
+depends_on    = ["Z02"]
+blocks        = []
+estimated_loc = 0
+files_modify  = [${tomlString(relPath(outPath))}]
+produces      = ["OUT:dag-toml-governance-sidecar"]
+consumes      = ["ART:zero-check-report", "ART:zero-inspect-report"]
+
+[computed]
+entry_points      = ["Z01"]
+leaf_nodes        = ["Z03"]
+critical_path     = ["Z01", "Z02", "Z03"]
+critical_path_loc = 0
+loc_totals        = { tier1 = 0 }
+
+[computed.max_parallel]
+layer0 = 1
+layer1 = 1
+layer2 = 1
+
+[zero]
+input             = ${tomlString(input)}
+artifact          = ${tomlString(artifactRel)}
+module_identity   = ${tomlString(moduleIdentity)}
+graph_hash        = ${tomlString(graphHash)}
+artifact_sha256   = ${tomlString(`sha256:${artifactSha256}`)}
+compiler_version  = ${tomlString(compilerVersion)}
+target            = ${tomlString(targetReadiness.target ?? targetSupport.target ?? target ?? "host")}
+backend           = ${tomlString(targetReadiness.backend ?? "")}
+object_format     = ${tomlString(targetReadiness.objectFormat ?? "")}
+readiness_stage   = ${tomlString(readinessStage)}
+language_ok       = ${targetReadiness.languageOk !== false}
+buildable         = ${targetReadiness.buildable !== false}
+checked           = true
+
+[zero.package]
+name                  = ${tomlString(packageInfo.name ?? "")}
+version               = ${tomlString(packageInfo.version ?? "")}
+manifest_path         = ${tomlString(packageInfo.manifestPath ?? "")}
+manifest_hash         = ${tomlString(packageInfo.manifestHash ?? "")}
+dependency_graph_hash = ${tomlString(packageInfo.dependencyGraphHash ?? "")}
+lockfile_path         = ${tomlString(packageInfo.lockfile?.path ?? "")}
+lockfile_hash         = ${tomlString(packageInfo.lockfile?.hash ?? "")}
+
+[zero.capabilities]
+required = ${tomlArray(requiredCapabilities)}
+host     = ${tomlArray(hostCapabilities)}
+
+[zero.safety]
+profile             = ${tomlString(safetyFacts.profile ?? "")}
+bounds_policy       = ${tomlString(safetyFacts.bounds?.policy ?? "")}
+overflow_policy     = ${tomlString(safetyFacts.overflow?.policy ?? "")}
+ownership_policy    = ${tomlString(safetyFacts.ownership?.moves ?? "")}
+compile_time_sandbox = ${tomlString(inspect.compileTime?.sandbox ? JSON.stringify(inspect.compileTime.sandbox) : "")}
+
+[[zero.evidence]]
+id      = "EV:zero-check-json"
+command = ${tomlString(`${displayCommand(zero)} check --json ${target ? `--target ${target} ` : ""}${input}`)}
+ok      = true
+anchors = ["ART:zero-graph-closure-root", "ART:zero-check-report"]
+
+[[zero.evidence]]
+id      = "EV:zero-inspect-json"
+command = ${tomlString(`${displayCommand(zero)} inspect --json ${target ? `--target ${target} ` : ""}${input}`)}
+ok      = true
+anchors = ["ART:zero-inspect-report"]
+`;
+
+const diagnosticsToml = firstDiagnostic
+  ? `
+[[zero.diagnostics]]
+code    = ${tomlString(firstDiagnostic.code ?? "")}
+message = ${tomlString(firstDiagnostic.message ?? "")}
+help    = ${tomlString(firstDiagnostic.help ?? "")}
+`
+  : "";
+
+const finalToml = toml + diagnosticsToml;
+mkdirSync(dirname(resolve(root, outPath)), { recursive: true });
+writeFileSync(resolve(root, outPath), finalToml);
+console.log(`wrote ${outPath}`);
+console.log(`closure_root ${closureRoot}`);
+console.log(`zero_graph_hash ${graphHash}`);
+console.log(`source_sha256 sha256:${artifactSha256}`);
+if (closureRoot === EMPTY_CLOSURE_ROOT) {
+  console.log("note: emitted empty closure root");
+}

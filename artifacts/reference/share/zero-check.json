@@ -1,0 +1,643 @@
+{
+  "schemaVersion": 1,
+  "ok": true,
+  "artifact": "fixtures/hello.graph",
+  "canonicalSource": false,
+  "moduleIdentity": "module:hello",
+  "graphHash": "graph:548e0af7897e1d09",
+  "check": {
+    "ok": true,
+    "phase": "typecheck",
+    "target": "linux-x64",
+    "lowering": "graph-native-check",
+    "sourcePath": null
+  },
+  "targetReadiness": {
+    "schemaVersion": 1,
+    "ok": true,
+    "languageOk": true,
+    "buildable": true,
+    "target": "linux-x64",
+    "emit": "exe",
+    "objectFormat": "elf",
+    "backend": "zero-elf64-exe",
+    "stage": "ready",
+    "diagnostics": []
+  },
+  "graphCompiler": {
+    "schemaVersion": 1,
+    "input": "program-graph-artifact",
+    "graphNativeCheckerUsed": true,
+    "graphHirToMirUsed": true,
+    "timings": {
+      "lowerMs": 0
+    },
+    "semanticFacts": {
+      "state": "typed-facts",
+      "ok": true,
+      "counts": {
+        "typedNodes": 5,
+        "functions": 1,
+        "calls": 1,
+        "fallibleCalls": 1,
+        "effects": 2,
+        "contracts": 1,
+        "ownership": 2,
+        "borrowing": 0,
+        "resources": 3,
+        "targetRequirements": 1,
+        "repairs": 1,
+        "diagnostics": 0
+      },
+      "types": [
+        {
+          "node": "#decl_ad8d9028",
+          "kind": "Function",
+          "name": "main",
+          "type": "Void",
+          "typeId": "type:b30331c589d91166",
+          "sourceRange": {
+            "path": "hello.0",
+            "start": {
+              "line": 1,
+              "column": 1
+            },
+            "end": {
+              "line": 1,
+              "column": 2
+            },
+            "columnUnit": "utf8-byte"
+          }
+        },
+        {
+          "node": "#param_4610ae76",
+          "kind": "Param",
+          "name": "world",
+          "type": "World",
+          "typeId": "type:3660b802c5c23502",
+          "sourceRange": {
+            "path": "hello.0",
+            "start": {
+              "line": 1,
+              "column": 13
+            },
+            "end": {
+              "line": 1,
+              "column": 14
+            },
+            "columnUnit": "utf8-byte"
+          }
+        },
+        {
+          "node": "#type_e81b75c9",
+          "kind": "TypeRef",
+          "name": "",
+          "type": "World",
+          "typeId": "type:3660b802c5c23502",
+          "sourceRange": {
+            "path": "hello.0",
+            "start": {
+              "line": 1,
+              "column": 13
+            },
+            "end": {
+              "line": 1,
+              "column": 14
+            },
+            "columnUnit": "utf8-byte"
+          }
+        },
+        {
+          "node": "#type_fa88962c",
+          "kind": "TypeRef",
+          "name": "",
+          "type": "Void",
+          "typeId": "type:b30331c589d91166",
+          "sourceRange": {
+            "path": "hello.0",
+            "start": {
+              "line": 1,
+              "column": 1
+            },
+            "end": {
+              "line": 1,
+              "column": 2
+            },
+            "columnUnit": "utf8-byte"
+          }
+        },
+        {
+          "node": "#expr_7d4dda1e",
+          "kind": "Literal",
+          "name": "",
+          "type": "String",
+          "typeId": "type:0c7be574dddec83b",
+          "sourceRange": {
+            "path": "hello.0",
+            "start": {
+              "line": 2,
+              "column": 27
+            },
+            "end": {
+              "line": 2,
+              "column": 28
+            },
+            "columnUnit": "utf8-byte"
+          }
+        }
+      ],
+      "functions": [
+        {
+          "node": "#decl_ad8d9028",
+          "name": "main",
+          "symbolId": "symbol:hello::value.main",
+          "returnType": "Void",
+          "returnTypeId": "type:b30331c589d91166",
+          "public": true,
+          "fallible": true,
+          "exportC": false,
+          "params": [
+            {
+              "node": "#param_4610ae76",
+              "name": "world",
+              "type": "World",
+              "typeId": "type:3660b802c5c23502",
+              "mutable": false,
+              "static": false,
+              "order": 0,
+              "sourceRange": {
+                "path": "hello.0",
+                "start": {
+                  "line": 1,
+                  "column": 13
+                },
+                "end": {
+                  "line": 1,
+                  "column": 14
+                },
+                "columnUnit": "utf8-byte"
+              }
+            }
+          ],
+          "effects": [
+            {
+              "node": "#effect_c9286721",
+              "name": "error",
+              "effectId": "effect:d1c6cb38f134cbfc"
+            }
+          ],
+          "errors": [],
+          "sourceRange": {
+            "path": "hello.0",
+            "start": {
+              "line": 1,
+              "column": 1
+            },
+            "end": {
+              "line": 1,
+              "column": 2
+            },
+            "columnUnit": "utf8-byte"
+          }
+        }
+      ],
+      "calls": [
+        {
+          "node": "#expr_6814a562",
+          "kind": "MethodCall",
+          "name": "write",
+          "qualifiedName": "world.out.write",
+          "returnType": "Void",
+          "returnTypeId": "",
+          "receiver": null,
+          "args": [
+            {
+              "node": "#expr_7d4dda1e",
+              "kind": "Literal",
+              "type": "String",
+              "typeId": "type:0c7be574dddec83b",
+              "order": 0,
+              "sourceRange": {
+                "path": "hello.0",
+                "start": {
+                  "line": 2,
+                  "column": 27
+                },
+                "end": {
+                  "line": 2,
+                  "column": 28
+                },
+                "columnUnit": "utf8-byte"
+              }
+            }
+          ],
+          "contract": {
+            "kind": "worldStreamWrite",
+            "fallible": true,
+            "checked": true,
+            "requiresCheck": false,
+            "targetNode": "#param_4610ae76",
+            "symbolId": "symbol:hello::value.main/param.world",
+            "returnType": "Void",
+            "capability": "io",
+            "targetSupport": "world-io",
+            "allocation": "",
+            "sourceModule": "",
+            "expectedArgCount": null,
+            "expectedArgTypes": [],
+            "errors": [],
+            "repair": {
+              "id": "check-fallible-call",
+              "appliesWhen": "alreadyChecked",
+              "summary": "wrap this fallible call in check or rescue before using its value"
+            }
+          },
+          "resolution": {
+            "referenceKind": "call",
+            "qualifiedName": "world.out.write",
+            "resolved": true,
+            "ambiguous": false,
+            "targetKind": "member",
+            "targetNode": "#param_4610ae76",
+            "symbolId": "symbol:hello::value.main/param.world"
+          },
+          "fallible": true,
+          "checked": true,
+          "sourceRange": {
+            "path": "hello.0",
+            "start": {
+              "line": 2,
+              "column": 26
+            },
+            "end": {
+              "line": 2,
+              "column": 27
+            },
+            "columnUnit": "utf8-byte"
+          }
+        }
+      ],
+      "effects": [
+        {
+          "node": "#decl_ad8d9028",
+          "kind": "Function",
+          "fallible": true,
+          "effects": [
+            {
+              "node": "#effect_c9286721",
+              "name": "error",
+              "effectId": "effect:d1c6cb38f134cbfc"
+            }
+          ],
+          "errors": [],
+          "sourceRange": {
+            "path": "hello.0",
+            "start": {
+              "line": 1,
+              "column": 1
+            },
+            "end": {
+              "line": 1,
+              "column": 2
+            },
+            "columnUnit": "utf8-byte"
+          }
+        },
+        {
+          "node": "#stmt_d3d9660f",
+          "kind": "Check",
+          "fallible": false,
+          "effects": [],
+          "errors": [],
+          "sourceRange": {
+            "path": "hello.0",
+            "start": {
+              "line": 2,
+              "column": 5
+            },
+            "end": {
+              "line": 2,
+              "column": 6
+            },
+            "columnUnit": "utf8-byte"
+          }
+        }
+      ],
+      "ownership": [
+        {
+          "node": "#param_4610ae76",
+          "kind": "Param",
+          "name": "world",
+          "type": "World",
+          "ownership": "resource-handle",
+          "mutable": false,
+          "resource": true,
+          "sourceRange": {
+            "path": "hello.0",
+            "start": {
+              "line": 1,
+              "column": 13
+            },
+            "end": {
+              "line": 1,
+              "column": 14
+            },
+            "columnUnit": "utf8-byte"
+          }
+        },
+        {
+          "node": "#type_e81b75c9",
+          "kind": "TypeRef",
+          "name": "",
+          "type": "World",
+          "ownership": "resource-handle",
+          "mutable": false,
+          "resource": true,
+          "sourceRange": {
+            "path": "hello.0",
+            "start": {
+              "line": 1,
+              "column": 13
+            },
+            "end": {
+              "line": 1,
+              "column": 14
+            },
+            "columnUnit": "utf8-byte"
+          }
+        }
+      ],
+      "borrowing": [],
+      "resources": [
+        {
+          "node": "#param_4610ae76",
+          "kind": "binding",
+          "resourceKind": "world-io",
+          "type": "World",
+          "sourceRange": {
+            "path": "hello.0",
+            "start": {
+              "line": 1,
+              "column": 13
+            },
+            "end": {
+              "line": 1,
+              "column": 14
+            },
+            "columnUnit": "utf8-byte"
+          }
+        },
+        {
+          "node": "#type_e81b75c9",
+          "kind": "binding",
+          "resourceKind": "world-io",
+          "type": "World",
+          "sourceRange": {
+            "path": "hello.0",
+            "start": {
+              "line": 1,
+              "column": 13
+            },
+            "end": {
+              "line": 1,
+              "column": 14
+            },
+            "columnUnit": "utf8-byte"
+          }
+        },
+        {
+          "node": "#expr_6814a562",
+          "kind": "capabilityUse",
+          "resourceKind": "world-io",
+          "capability": "io",
+          "qualifiedName": "world.out.write",
+          "sourceRange": {
+            "path": "hello.0",
+            "start": {
+              "line": 2,
+              "column": 26
+            },
+            "end": {
+              "line": 2,
+              "column": 27
+            },
+            "columnUnit": "utf8-byte"
+          }
+        }
+      ],
+      "targetRequirements": [
+        {
+          "node": "#expr_6814a562",
+          "qualifiedName": "world.out.write",
+          "contractKind": "worldStreamWrite",
+          "capability": "io",
+          "targetSupport": "world-io",
+          "sourceRange": {
+            "path": "hello.0",
+            "start": {
+              "line": 2,
+              "column": 26
+            },
+            "end": {
+              "line": 2,
+              "column": 27
+            },
+            "columnUnit": "utf8-byte"
+          }
+        }
+      ],
+      "repairs": [
+        {
+          "node": "#expr_6814a562",
+          "qualifiedName": "world.out.write",
+          "requiresCheck": false,
+          "repair": {
+            "id": "check-fallible-call",
+            "appliesWhen": "alreadyChecked",
+            "summary": "wrap this fallible call in check or rescue before using its value"
+          },
+          "sourceRange": {
+            "path": "hello.0",
+            "start": {
+              "line": 2,
+              "column": 26
+            },
+            "end": {
+              "line": 2,
+              "column": 27
+            },
+            "columnUnit": "utf8-byte"
+          }
+        }
+      ],
+      "diagnostics": []
+    }
+  },
+  "safetyFacts": {
+    "schemaVersion": 1,
+    "profile": "release-small",
+    "profileKey": "small",
+    "coverage": "checker-mir-direct-backends",
+    "bounds": {
+      "policy": "checked",
+      "staticDiagnostics": true,
+      "runtimeTraps": true,
+      "trapRuntime": "pay-as-used",
+      "optimizerElision": false,
+      "unchecked": false
+    },
+    "overflow": {
+      "policy": "literal-range-checked-runtime-unchecked",
+      "integerLiterals": "range-checked",
+      "staticValues": "range-checked",
+      "runtimeArithmetic": "unchecked-machine-wrap",
+      "unchecked": true
+    },
+    "initialization": {
+      "locals": "initializer-required",
+      "fields": "explicit-or-default-required",
+      "fixedArrays": "literal-or-repeat-required",
+      "maybePayloadReads": "guard-checked",
+      "unchecked": false
+    },
+    "aliasing": {
+      "mutableAliases": "diagnostic",
+      "sharedWhileMutable": "diagnostic",
+      "references": "provenance-checked"
+    },
+    "lifetimes": {
+      "escapedLocalBorrow": "diagnostic",
+      "returnedLocalBorrow": "diagnostic",
+      "borrowedStdlibResults": "provenance-checked"
+    },
+    "ownership": {
+      "moves": "checked",
+      "useAfterMove": "diagnostic",
+      "ownedResourceDrop": "explicit"
+    },
+    "spans": {
+      "construction": "type-and-mutability-checked",
+      "indexing": "bounds-checked",
+      "slicing": "order-and-bounds-checked"
+    },
+    "mir": {
+      "contracts": "verified-before-direct-emission",
+      "localLayout": true,
+      "localIndexBounds": true,
+      "memoryOpWidths": true,
+      "invalidMemoryContractsBlockEmission": true
+    },
+    "uncheckedSurfaces": [
+      {
+        "surface": "C imports",
+        "policy": "externally-trusted"
+      },
+      {
+        "surface": "host filesystem/process/network effects",
+        "policy": "capability-gated-not-sandboxed"
+      }
+    ]
+  },
+  "compileTime": {
+    "deterministic": true,
+    "releaseMetadataDefault": false,
+    "sandbox": {
+      "filesystem": "denied",
+      "network": "denied",
+      "ambientEnv": "denied",
+      "process": "denied"
+    },
+    "limits": {
+      "maxDepth": 64,
+      "maxSteps": 1024,
+      "stringBytes": 127,
+      "memory": "bounded-evaluator-state-only",
+      "time": "step-counted"
+    },
+    "cacheKeyInputs": {
+      "algorithm": "fnv1a64-zero-meta-v1",
+      "sourceHash": "e60fad423fafbc8a",
+      "targetHash": "4cc62bf94958246c",
+      "manifestHash": "14650fb0739d0383",
+      "compilerVersion": "0.3.0",
+      "declaredInputs": [
+        "source",
+        "target",
+        "compilerVersion",
+        "manifest",
+        "targetFacts"
+      ]
+    },
+    "meta": {
+      "supportedFacts": [
+        "literal arithmetic",
+        "literal comparisons",
+        "Bool logic",
+        "target.os",
+        "target.arch",
+        "target.abi",
+        "target.libc",
+        "target.objectFormat",
+        "target.endian",
+        "target.pointerWidth",
+        "target.hasCapability",
+        "fieldCount",
+        "hasField",
+        "fieldType",
+        "enumCaseCount",
+        "hasEnumCase",
+        "choiceCaseCount",
+        "hasChoiceCase"
+      ],
+      "unsupportedEffects": [
+        "filesystem",
+        "network",
+        "process",
+        "ambient environment"
+      ],
+      "cycleDiagnostic": "MET001",
+      "safetyLimitDiagnostic": "MET001"
+    },
+    "reflection": {
+      "typed": true,
+      "compileTimeOnly": true,
+      "releaseMetadataRetained": false,
+      "facts": [
+        "target",
+        "shape fields",
+        "enum cases",
+        "choice cases"
+      ]
+    },
+    "staticValues": {
+      "supported": [
+        "integer",
+        "Bool",
+        "enum"
+      ],
+      "concreteSpecializations": true,
+      "runtimeRegistries": false,
+      "reflectionTables": false,
+      "mismatchesDiagnostic": "STC003"
+    },
+    "typedBuilders": {
+      "status": "limited-v1",
+      "supported": [
+        "shape literals",
+        "enum case values",
+        "choice constructors"
+      ],
+      "rawTokenStrings": false,
+      "compileTimeOnly": true,
+      "runtimeBuilderRegistry": false
+    },
+    "programSurface": {
+      "shapeCount": 0,
+      "enumCount": 0,
+      "choiceCount": 0
+    }
+  },
+  "diagnostics": [],
+  "saved": null,
+  "view": null
+}

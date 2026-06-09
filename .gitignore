@@ -1,0 +1,7 @@
+node_modules/
+.env
+.env.*
+.zero/
+artifacts/dry-run/
+artifacts/demo-run/
+artifacts/tmp/

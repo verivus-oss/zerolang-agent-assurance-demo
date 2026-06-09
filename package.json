@@ -1,0 +1,17 @@
+{
+  "name": "zerolang-agent-assurance-demo",
+  "version": "0.1.0",
+  "private": true,
+  "license": "Apache-2.0",
+  "description": "Demo of DAG-TOML governance sidecars over Zerolang graph evidence.",
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "dagtoml:demo": "node --experimental-strip-types --disable-warning=ExperimentalWarning scripts/zero-dagtoml-demo.mts",
+    "dagtoml:share": "node --experimental-strip-types --disable-warning=ExperimentalWarning scripts/share-dagtoml-demo.mts",
+    "demo:dry-run": "ZERO_BIN=${ZERO_BIN:-zero} pnpm --silent run dagtoml:demo -- fixtures/hello.graph --out artifacts/dry-run/hello.dag.toml && ZERO_BIN=${ZERO_BIN:-zero} pnpm --silent run dagtoml:share -- fixtures/hello.graph --out-dir artifacts/dry-run/share",
+    "demo:validate-completion": "node --experimental-strip-types --disable-warning=ExperimentalWarning scripts/validate-demo-completion.mts"
+  }
+}

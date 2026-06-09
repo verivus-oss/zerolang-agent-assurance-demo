@@ -1,0 +1,158 @@
+# CIS Controls v8.1 Software & Services Compliance Contracts
+closure_root = "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+
+[meta]
+schema_version    = "0.1.0"
+template_kind     = "contract-declaration"
+docs              = "https://github.com/verivus-oss/agent-assurance/blob/main/spec.md"
+confidentiality   = "public"
+license           = "Apache-2.0"
+framework_profile = "agent-assurance"
+title             = "Comprehensive Policy Pack: CIS Controls v8.1 (Software & Services)"
+status            = "ready"
+created           = "2026-06-09"
+review_subject    = "policy-pack-cis-controls"
+
+# --- CIS-16.1: Secure Development Process ---
+[[contracts]]
+id          = "CIS-16-1"
+domain      = "development_process"
+statement   = "Establish and maintain a secure application development process across lifecycles. Enforced by branch protection and signature verifications."
+applies_to  = ["policy-pack-cis-controls"]
+must_name   = ["branch_protection_enabled", "required_signatures"]
+verified_by = ["adapter-contract:release-signature-check@1"]
+
+# --- CIS-16.2: Vulnerability Intake ---
+[[contracts]]
+id          = "CIS-16-2"
+domain      = "vulnerability_reporting"
+statement   = "Accept, track, and address vulnerability reports from external sources. Enforced by validating security.txt and active reporting endpoints."
+applies_to  = ["policy-pack-cis-controls"]
+must_name   = ["security_txt_hash"]
+verified_by = ["adapter-contract:smoke-validation-check@1"]
+
+# --- CIS-16.3: Root Cause Analysis ---
+[[contracts]]
+id          = "CIS-16-3"
+domain      = "vulnerability_analysis"
+statement   = "Perform root cause analysis on vulnerabilities to update dev rules. Enforced by mapping historical vulnerability IDs to regression tests."
+applies_to  = ["policy-pack-cis-controls"]
+must_name   = ["vulnerability_regression_tests"]
+verified_by = ["adapter-contract:requirements-completeness-check@1"]
+
+# --- CIS-16.4: SBOM Inventory ---
+[[contracts]]
+id          = "CIS-16-4"
+domain      = "software_inventory"
+statement   = "Maintain inventory of third-party software components (SBOM). Enforced by verifying SBOM file hash and package manifests."
+applies_to  = ["policy-pack-cis-controls"]
+must_name   = ["sbom_manifest"]
+verified_by = ["adapter-contract:sbom-verifier@1"]
+
+# --- CIS-16.5: Trusted Components ---
+[[contracts]]
+id          = "CIS-16-5"
+domain      = "dependency_trust"
+statement   = "Use up-to-date and trusted third-party software components. Enforced by dependency scanners blocking deprecated library versions."
+applies_to  = ["policy-pack-cis-controls"]
+must_name   = ["dependency_scan_status"]
+verified_by = ["adapter-contract:dependency-scanner-check@1"]
+
+# --- CIS-16.6: Severity Rating ---
+[[contracts]]
+id          = "CIS-16-6"
+domain      = "vulnerability_severity"
+statement   = "Maintain severity rating system for found vulnerabilities. Enforced by integrating CVSS scanner into build gates to block high-severity bugs."
+applies_to  = ["policy-pack-cis-controls"]
+must_name   = ["severity_threshold_cvss"]
+verified_by = ["adapter-contract:sast-verifier@1"]
+
+# --- CIS-16.7: Hardening Configuration Templates ---
+[[contracts]]
+id          = "CIS-16-7"
+domain      = "infrastructure_hardening"
+statement   = "Use standard hardening configuration templates for application infrastructure. Enforced by matching application-infrastructure configuration against a pinned, hardened template hash."
+applies_to  = ["policy-pack-cis-controls"]
+must_name   = ["hardening_template_hash"]
+verified_by = ["adapter-contract:closure-root-integrity-check@1"]
+
+# --- CIS-16.8: Production / Non-Production Separation ---
+[[contracts]]
+id          = "CIS-16-8"
+domain      = "environment_separation"
+statement   = "Separate production and non-production systems. Enforced by asserting prod/non-prod boundary invariants so non-production credentials or data cannot cross into production."
+applies_to  = ["policy-pack-cis-controls"]
+must_name   = ["environment_separation_invariants"]
+verified_by = ["adapter-contract:spec-contract-invariants-check@1"]
+
+# --- CIS-16.9: Developer Security Training ---
+[[contracts]]
+id          = "CIS-16-9"
+domain      = "developer_training"
+statement   = "Train developers in application security concepts and secure coding. Enforced by mapping every authorized committer to a current, dated secure-coding training assertion."
+applies_to  = ["policy-pack-cis-controls"]
+must_name   = ["developer_training_records"]
+verified_by = ["adapter-contract:requirements-completeness-check@1"]
+
+# --- CIS-16.10: Secure Design Principles ---
+[[contracts]]
+id          = "CIS-16-10"
+domain      = "secure_architecture"
+statement   = "Apply secure design principles in application architectures. Enforced by validating architectural isolation and boundary invariants in spec-contracts."
+applies_to  = ["policy-pack-cis-controls"]
+must_name   = ["architecture_invariants"]
+verified_by = ["adapter-contract:spec-contract-invariants-check@1"]
+
+# --- CIS-16.11: Vetted Modules / Services ---
+[[contracts]]
+id          = "CIS-16-11"
+domain      = "vetted_security_components"
+statement   = "Leverage vetted modules or services for application security components (authn, crypto, session). Enforced by requiring security components to resolve to vetted, registry-bound modules."
+applies_to  = ["policy-pack-cis-controls"]
+must_name   = ["vetted_module_bindings"]
+verified_by = ["adapter-contract:adapter-registry-binding-check@1"]
+
+# --- CIS-16.12: Code-Level Security Checks ---
+[[contracts]]
+id          = "CIS-16-12"
+domain      = "secure_coding"
+statement   = "Implement code-level security checks. Enforced by static code linting and SAST scanners in build pipelines with zero tolerated policy violations."
+applies_to  = ["policy-pack-cis-controls"]
+must_name   = ["linter_policy_rules"]
+verified_by = ["adapter-contract:sast-verifier@1"]
+
+# --- CIS-16.13: Application Penetration Testing ---
+[[contracts]]
+id          = "CIS-16-13"
+domain      = "dynamic_assessment"
+statement   = "Conduct application penetration testing. Enforced by verifying DAST/penetration-test report signatures dated within the compliance window."
+applies_to  = ["policy-pack-cis-controls"]
+must_name   = ["dast_report_signature"]
+verified_by = ["adapter-contract:test-coverage-check@1"]
+
+# --- CIS-16.14: Threat Modeling ---
+[[contracts]]
+id          = "CIS-16-14"
+domain      = "threat_modeling"
+statement   = "Conduct threat modeling. Enforced by checking for threat-model files mapping system architectures to test mitigations."
+applies_to  = ["policy-pack-cis-controls"]
+must_name   = ["threats", "mitigations"]
+verified_by = ["adapter-contract:design-threat-check@1"]
+
+# --- CIS-15.1: Service Provider Inventory ---
+[[contracts]]
+id          = "CIS-15-1"
+domain      = "service_inventory"
+statement   = "Maintain an inventory of third-party service providers. Enforced by maintaining active adapter-registry-bindings with validated endpoints."
+applies_to  = ["policy-pack-cis-controls"]
+must_name   = ["model_bindings"]
+verified_by = ["adapter-contract:adapter-registry-binding-check@1"]
+
+# --- CIS-15.3: Classify Service Providers ---
+[[contracts]]
+id          = "CIS-15-3"
+domain      = "service_provider_classification"
+statement   = "Classify service providers by risk and data sensitivity. Enforced by requiring every service-provider record to carry a risk-based classification tier; high-sensitivity tiers trigger stricter contract (15.4) and assessment (15.5) requirements."
+applies_to  = ["policy-pack-cis-controls"]
+must_name   = ["service_provider_classification"]
+verified_by = ["adapter-contract:spec-contract-invariants-check@1"]

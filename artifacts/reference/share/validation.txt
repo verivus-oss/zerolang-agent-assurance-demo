@@ -1,0 +1,22 @@
+## closure-root
+$ python3 $AGENT_ASSURANCE_ROOT/validators/validate_closure_root.py ./artifacts/reference/share/fixtures-hello.dag.toml --repo-root $AGENT_ASSURANCE_ROOT
+exit 0
+CLOSURE-ROOT VALIDATION PASSED (1 file(s)).
+
+## provenance
+$ python3 $AGENT_ASSURANCE_ROOT/validators/validate_provenance.py artifacts/reference/share/fixtures-hello.dag.toml --repo-root .
+exit 0
+PROVENANCE VALIDATION PASSED
+- files inspected: 1
+- files with [provenance]: 1
+
+## implementation-dag
+$ python3 $AGENT_ASSURANCE_ROOT/validators/validate_implementation_dag.py ./artifacts/reference/share/fixtures-hello.dag.toml --repo-root . --check-paths-exist
+exit 0
+IMPLEMENTATION DAG VALIDATION PASSED
+- file: ./artifacts/reference/share/fixtures-hello.dag.toml
+- units: 3
+- layers: {0: 1, 1: 1, 2: 1}
+- critical_path_loc: 0
+- repo_root: .
+- path existence checks: enabled
